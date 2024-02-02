@@ -5,7 +5,7 @@ from machine import I2C,Pin
 import ssd1306 as oled
 import time
 import select
-
+import bluetooth
 #——————gps————————
 
 # SGPGSV语句的基本格式如下:
@@ -126,3 +126,21 @@ oled.show()
 # fbuf.line(0, 0, 7, 7, 1)
 # display.blit(fbuf, 10, 10, 0)           # draw on top at x=10, y=10, key=0
 # display.show()
+
+#——bluetooth——
+bt = bluetooth.BLE()
+bt.active(True)
+bt.gap_advertise(100, adv_data='ESP32_BLE_01',connectable=True)
+#BLE.gap_advertise(interval_us, adv_data=None, *, resp_data=None, connectable=True)
+bt.gap_advertise(None,)
+#停止广播
+HR_UUID = bluetooth.UUID(0x180D)
+HR_CHAR = (bluetooth.UUID(0x2A37), bluetooth.FLAG_READ | bluetooth.FLAG_NOTIFY,)
+HR_SERVICE = (HR_UUID, (HR_CHAR,),)
+UART_UUID = bluetooth.UUID('6E400001-B5A3-F393-E0A9-E50E24DCCA9E')
+UART_TX = (bluetooth.UUID('6E400003-B5A3-F393-E0A9-E50E24DCCA9E'), bluetooth.FLAG_READ | bluetooth.FLAG_NOTIFY,)
+UART_RX = (bluetooth.UUID('6E400002-B5A3-F393-E0A9-E50E24DCCA9E'), bluetooth.FLAG_WRITE,)
+UART_SERVICE = (UART_UUID, (UART_TX, UART_RX,),)
+SERVICES = (HR_SERVICE, UART_SERVICE,)
+( (hr,), (tx, rx,), ) = bt.gatts_register_services(SERVICES)
+#注册服务
