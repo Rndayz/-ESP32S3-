@@ -4,11 +4,22 @@
 
 #### 硬件准备
 1.一块esp32s3（N16R8）
+
 2.0.91寸oled
+
 3.ublox gps模块
 
 #### 软件准备
 1.thonny
+
+#### 接线方式
+SCL＝48
+
+SDA＝47
+
+tx ＝11
+
+rx＝12
 
 #### 使用教程
 1.给你的ESP32S3 MicroPython设备刷入microPython固件（需要有蓝牙）
