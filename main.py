@@ -6,6 +6,8 @@ import ssd1306 as oled
 import time
 import select
 import bluetooth
+from machine import I2C,Pin
+from ssd1306 import SSD1306_I2C   
 #——————gps————————
 
 # SGPGSV语句的基本格式如下:
@@ -47,8 +49,12 @@ uart = UART(1,9600,rx=11, tx=12)
 normal_data_GPGSV = ''
 normal_data_GPVTG = ''
 normal_data_GPRMC = ''
-received_data = ''
+received_data = ''                                              
+visiblesat = ''
+speed = ''
+status = ''
 #统一定义变量，防止因为没有轮询到相应回复导致变量未定义
+#定义OLED
 while True:
     if uart.any():
        received_data = uart.readline().decode('utf-8').strip()#阅读一行，除去换行符，转为普通字符串
@@ -67,9 +73,8 @@ while True:
        split_data_GPGSV = normal_data_GPGSV.split(',')
        split_data_GPVTG = normal_data_GPVTG.split(',')
        split_data_GPRMC = normal_data_GPRMC.split(',')
-       print(split_data_GPGSV,
-             split_data_GPVTG,
-             split_data_GPRMC)
+       print(split_data_GPGSV,split_data_GPVTG,split_data_GPRMC)
+       
        if len(split_data_GPGSV) >= 2:
           visiblesat = split_data_GPGSV[3]
           print("可见卫星数:", visiblesat)
@@ -80,20 +85,16 @@ while True:
           utctime = split_data_GPRMC[1]
           status = split_data_GPRMC[2]
           print("当前UTC时间:", utctime)
-          print("定位状态:", status)     
+          print("定位状态:", status)  
        time.sleep(1)
     else : print('unknown:',received_data)
+    time.sleep(1)
+    oled.text("sts: {}".format(visiblesat), 0, 0)
+    oled.text("spd: {}".format(speed), 0, 10)
+    oled.text("stu: {}".format(status), 0, 20)
+    oled.show()                                                 
     
-#——————oled——————
-# from machine import I2C,Pin
-# import ssd1306 as oled    
-i2c = I2C(scl = Pin(48),sda = Pin(47),freq = 10000) #软件I2C
-oled = oled.SSD1306_I2C(128, 32, i2c) #创建oled对象
-oled.text("hello!",0,0)
-oled.show()
 
-
-#定义oled的io口
 #OLED_WR_Byte(0xA1,OLED_CMD);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
 #OLED_WR_Byte(0xC8,OLED_CMD);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
 #可能用于上下翻转显示
@@ -102,7 +103,7 @@ oled.show()
 # display.poweroff（）#关闭显示器电源，像素保留在内存中
 # display.poweon（）#打开显示器电源，重新绘制像素
 # display.contation（0）#dim
-# display.contation（255）#明亮
+ # display.contation（255）#明亮
 # display.inverse（1）#显示反转
 # display.inverse（0）#显示正常
 # display.rotate（True）#旋转180度
@@ -128,19 +129,5 @@ oled.show()
 # display.show()
 
 #——bluetooth——
-bt = bluetooth.BLE()
-bt.active(True)
-bt.gap_advertise(100, adv_data='ESP32_BLE_01',connectable=True)
-#BLE.gap_advertise(interval_us, adv_data=None, *, resp_data=None, connectable=True)
-bt.gap_advertise(None,)
-#停止广播
-HR_UUID = bluetooth.UUID(0x180D)
-HR_CHAR = (bluetooth.UUID(0x2A37), bluetooth.FLAG_READ | bluetooth.FLAG_NOTIFY,)
-HR_SERVICE = (HR_UUID, (HR_CHAR,),)
-UART_UUID = bluetooth.UUID('6E400001-B5A3-F393-E0A9-E50E24DCCA9E')
-UART_TX = (bluetooth.UUID('6E400003-B5A3-F393-E0A9-E50E24DCCA9E'), bluetooth.FLAG_READ | bluetooth.FLAG_NOTIFY,)
-UART_RX = (bluetooth.UUID('6E400002-B5A3-F393-E0A9-E50E24DCCA9E'), bluetooth.FLAG_WRITE,)
-UART_SERVICE = (UART_UUID, (UART_TX, UART_RX,),)
-SERVICES = (HR_SERVICE, UART_SERVICE,)
-( (hr,), (tx, rx,), ) = bt.gatts_register_services(SERVICES)
-#注册服务
+#esp32的蓝牙地址为 34:85:18:AC:70:C6
+
