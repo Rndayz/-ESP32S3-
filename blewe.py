@@ -1,3 +1,10 @@
+"""
+修改自
+The MIT License (MIT)
+Copyright © 2020 Walkline Wang (https://walkline.wang)
+Gitee: https://gitee.com/walkline/esp32-ble-uart
+Original repo: https://github.com/micropython/micropython/blob/master/examples/bluetooth/ble_uart_peripheral.py
+"""
 from machine import I2C, Pin
 from ssd1306 import SSD1306_I2C
 import machine
