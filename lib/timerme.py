@@ -1,28 +1,3 @@
-from machine import I2C, Pin
-from ssd1306 import SSD1306_I2C
-import machine
-import time
-import utime
-import ubluetooth as bt
-import struct
-
-# 初始化 OLED
-i2c = I2C(scl=Pin(48), sda=Pin(47), freq=10000)
-oled = SSD1306_I2C(128, 32, i2c)
-
-
-__UART_UUID = bt.UUID("6E400001-B5A3-F393-E0A9-E50E24DCCA9E")
-__RX_UUID = bt.UUID("6E400002-B5A3-F393-E0A9-E50E24DCCA9E")
-__TX_UUID = bt.UUID("6E400003-B5A3-F393-E0A9-E50E24DCCA9E")
-
-__UART_SERVICE = (
-    __UART_UUID,
-    (
-        (__TX_UUID, bt.FLAG_NOTIFY,),
-        (__RX_UUID, bt.FLAG_WRITE,),
-    ),
-)
-
 class BLEConst(object):
     class IRQ(object):
         IRQ_CENTRAL_CONNECT = const(1)
@@ -156,7 +131,7 @@ class BLEUART:
                      received_data = self.__read(self.__rx_handle).decode('utf-8')  # 解码为utf-8格式
                      self.__rx_cb(received_data)
                      print("Received data:", received_data)
-                     self.initial_minutes = int(received_data)*60*1000 + utime.ticks_ms()
+                     initial_minutes = int(received_data)
 
     def send(self, data):
         data_bytes = struct.pack('I', data)
@@ -170,21 +145,16 @@ class BLEUART:
         while self.initial_minutes > 0:
             # 清除屏幕内容
             oled.fill(0)
-            oled.text("{}mins ".format(round((self.initial_minutes - utime.ticks_ms())/1000/60),2), 0, 20)
+
+            # 显示剩余时间
+            
+            oled.text("minutes{} ".format(self.initial_minutes), 0, 20)
             oled.show()
-            print(self.initial_minutes)
-def rx_callback(data):
-    global uart_instance  # 使用 global 关键字声明全局变量
-    uart_instance.initial_minutes = data  # 将接收到的数字赋值给实例变量
-   
-# 初始化 BLE 实例
-ble = bt.BLE()
-uart_instance = BLEUART(ble, rx_callback)
 
-
-# 进入主循环
-while True:
-    uart_instance.timmme()
-    pass
-
+            # 等待 60 秒（1 分钟）
+            time.sleep(60)
+            self.initial_minutes -= 1
+    def rx_callback(data):
+        global uart_instance  # 使用 global 关键字声明全局变量
+        uart_instance.initial_minutes = data  # 将接收到的数字赋值给实例变量
 

@@ -6,7 +6,6 @@ import ssd1306 as oled
 import time
 import select
 import bluetooth
-from machine import I2C,Pin
 from ssd1306 import SSD1306_I2C   
 #——————gps————————
 
