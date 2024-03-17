@@ -43,6 +43,8 @@ from ssd1306 import SSD1306_I2C
 
 
 uart = UART(1,9600,rx=11, tx=12)
+i2c = I2C(scl=Pin(48), sda=Pin(47), freq=10000)
+oled = SSD1306_I2C(128, 64, i2c)
 #格式：UART(1, baudrate=115201, bits=8, parity=None, stop=1, tx=10, rx=9, rts=-1, cts=-1, txbuf=256, rxbuf=256, timeout=0, timeout_char=0)
 #定义GPS模块收发IO口
 normal_data_GPGSV = ''
