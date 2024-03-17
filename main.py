@@ -112,7 +112,7 @@ class BLETools:
         return ":".join(['%02X' % byte for byte in addr])
 
 class BLEUART:
-    def __init__(self, ble, rx_callback=None, name="骑行设备", rxbuf=100):
+    def __init__(self, ble, rx_callback=None, name="Riding", rxbuf=100):
         self.__ble = ble
         self.__rx_cb = rx_callback
         self.__conn_handle = None
