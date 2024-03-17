@@ -18,7 +18,6 @@ visiblesat = ''
 speed = ''
 status = ''
 
-# Global variable for initial minutes
 initial_minutes = 0
 
 # BLE UUIDs
@@ -113,7 +112,7 @@ class BLETools:
         return ":".join(['%02X' % byte for byte in addr])
 
 class BLEUART:
-    def __init__(self, ble, rx_callback=None, name="mpy-uart", rxbuf=100):
+    def __init__(self, ble, rx_callback=None, name="骑行设备", rxbuf=100):
         self.__ble = ble
         self.__rx_cb = rx_callback
         self.__conn_handle = None
@@ -213,7 +212,7 @@ def update_oled():
     oled.show()
  
 
-# GPS data parsing function
+# GPS 数据处理
 def parse_gps_data(received_data):
     global visiblesat, speed, status
     if "GPGSV" in received_data:
@@ -239,7 +238,7 @@ while True:
         uart_instance.timmme()
         utime.sleep_ms(500)  # 等待500毫秒
     except UnicodeError:
-        print("UnicodeError")
+        print("UnicodeError")#忽略Unicode错误
 
        
    
